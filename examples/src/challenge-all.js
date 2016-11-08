@@ -1,19 +1,4 @@
-let json = [{
-    "name": "Alice",
-    "age": 42
-},
-{
-    "name": "Bob",
-    "age": 54
-},
-{
-    "name": "Carol",
-    "age": 27
-}];
-
-let fetchJSON = () => new Promise((resolve, reject) => resolve(json));
-
-/* ------- */
+import fetchJSON from "./fetchJSON";
 
 // v1
 // fetchJSON("/coders.json").then(function (json) {
