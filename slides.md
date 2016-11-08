@@ -13,7 +13,48 @@ Functional Programming with JavaScript
 
 ---
 
-<iframe width="100%" height="100%" src="https://www.youtube.com/embed/eetWam3nhoM" frameborder="0" allowfullscreen></iframe>
+## What I Will be Talking About
+
+- First Class Functions
+- `map`, `reduce`, and `filter`
+- Functional Composition
+- Partial Application (currying)
+
+---
+
+## First Class Functions
+
+In JavaScript functions can be treated just like any other variable: you can pass them around and create them on the fly.
+
+```javascript
+var pointless = function () {
+    console.log("Pointless!");
+};
+
+var run = function (fn) {
+    return fn(); 
+};
+
+run(pointless);
+```
+
+---
+
+## Executing vs Referencing
+
+This is what happens when non-functional programmers use a functional language:
+
+```javascript
+var doSomething = function () {
+    alert("You did a thing!");
+    document.write("<marquee>Woo!</marquee>");
+};
+
+//           old skool!
+//               ↓
+setTimeout("doSomething()", 1000);
+```
+
 
 ---
 
@@ -24,6 +65,8 @@ How can we tidy up this code?
 ```javascript
 var doSomething = function (e) {
     e.preventDefault();
+
+    // do something 
 };
 
 document.body.addEventHandler("click", function (e) {
@@ -33,37 +76,18 @@ document.body.addEventHandler("click", function (e) {
 
 ---
 
-## Ye Olden Times
+## Spot the Issue
 
-Does anyone remember this?
+We can call the function directly, as it takes the same arguments as the wrapper function:
 
 ```javascript
-var doSomething = function () {
-    alert("You did a thing!");
+var doSomething = function (e) {
+    e.preventDefault();
+
+    // do something 
 };
 
-setTimeout("doSomething", 1000);
-```
----
-
-## Some Functions You May Know
-
-Filter, Map, and Reduce
-
-```javascript
-var numbers = [1, 2, 3, 4, 5, 6];
-
-var oddNumbers = numbers.filter(function (n) {
-    return n % 2;
-}); // [1, 3, 5]
-
-var squares = numbers.map(function (n) {
-    return n * n;
-}); // [1, 4, 9, 16, 25, 36]
-
-var sum = numbers.reduce(function (acc, n) {
-    return acc + n;
-}, 0); // 21
+document.body.addEventHandler("click", doSomething); 
 ```
 
 ---
@@ -75,70 +99,147 @@ I'll be using ES6 `let` and arrow syntax from now on:
 ```javascript
 // old skool
 var add = function (a, b) {
-        return a + b;
-    };
+    return a + b;
+};
+
 
 // nice
 let add = (a, b) => a + b;
 ```
 
-I'll also be using [Ramda.js](http://ramdajs.com) and [Immutable.js](https://facebook.github.io/immutable-js/)
+I'll also be using [Ramda.js](http://ramdajs.com) - it's like a functional Underscore
 
 ---
 
-## Side Effects
-
-Ideally, we want to avoid side-effects:
-
-```javascript
-let letters = ["a", "b", "c", "d", "e"];
-
-let last = arr => arr.pop();
-
-let e = last(letters);
-
-console.log(e); // "e"
-console.log(letters);  // ["a", "b", "c", "d"]
-```
-
-```javascript
-let letters = ["a", "b", "c", "d", "e"];
-
-let last = arr => arr.slice().pop();
-
-let e = last(letters);
-
-console.log(e); // "e"
-console.log(letters);  // ["a", "b", "c", "d", "e"]
-```
+# Familiar Functions
 
 ---
 
 ## Filter
 
-```javascript
-import { List } from "immutable";
-
-let numbers = List([1, 2, 3, 4, 5, 6]);
-
-let oddNumbers = numbers.filter(n => n % 2); // [1, 3, 5]
-```
-
-Let's pull the odd function out:
+The array `filter` method iterates over each item in an array and returns only those that return `true` when passed to the given function:
 
 ```javascript
-import { List } from "immutable";
+var numbers = [1, 2, 3, 4, 5, 6];
 
-let numbers = List([1, 2, 3, 4, 5, 6]);
-
-let odd = n => n % 2;
-let even = n => !odd(n);
-
-let oddNumbers = numbers.filter(odd);
-let evenNumbers = numbers.filter(even);
+var oddNumbers = numbers.filter(function (n) {
+    return n % 2;
+});
 
 console.log(oddNumbers); // [1, 3, 5]
-console.log(evenNumbers); // [2, 4, 6]
+```
+
+Let's make this a bit more modular: 
+
+```javascript
+let numbers = [1, 2, 3, 4, 5, 6];
+
+let odd = n => !!(n % 2);
+
+let oddNumbers = numbers.filter(odd);
+
+console.log(oddNumbers); // [1, 3, 5]
+```
+
+---
+
+## Map 
+
+The array `map` method iterates over each item in an array and returns an array where each item has been transformed using the given function:
+
+```javascript
+let numbers = [1, 2, 3, 4, 5, 6];
+
+let squares = numbers.map(function (n) {
+    return n * n;
+});
+
+console.log(squares); // [1, 4, 9, 16, 25, 36]
+```
+
+Let's make this a bit more modular: 
+
+```javascript
+let numbers = [1, 2, 3, 4, 5, 6];
+
+let square = n => n * n;
+
+let squares = numbers.map(square);
+
+console.log(squares); // [1, 4, 9, 16, 25, 36]
+```
+
+---
+
+## Reduce 
+
+The array `reduce` method iterates over each item in an array and reduces them down to a single value using the given function:
+
+```javascript
+let numbers = [1, 2, 3, 4, 5, 6];
+
+// acc is the cumulative returned value (which we've set to 0 to start)
+let sum = numbers.reduce(function (acc, n) {
+    return acc + n;
+}, 0);
+
+console.log(sum); // 21
+```
+
+Let's make this a bit more modular: 
+
+```javascript
+let numbers = [1, 2, 3, 4, 5, 6];
+
+let add = (a, b) => a + b;
+
+let sum = numbers.reduce(add, 0);
+
+console.log(sum); // 21
+```
+
+---
+
+## Emergent Functions
+
+We've, almost inadvertently, created some useful little functions:
+
+```javascript
+let add = (a, b) => a + b;
+
+let square = n => n * n;
+
+let odd = n => !!(n % 2);
+```
+
+Unless the laws of mathematics change, these functions will *never* need to be changed at some point in the future.
+
+---
+
+## A Side Note on Side Effects
+
+Ideally, we want to avoid side-effects.
+
+#### Bad
+
+```javascript
+let letters = ["a", "b", "c", "d", "e"];
+
+let last = arr => arr.pop();
+let e = last(letters);
+
+console.log(e); // "e"
+```
+
+#### Good
+
+```javascript
+let letters = ["a", "b", "c", "d", "e"];
+
+let last = arr => arr.slice().pop();
+let e = last(letters);
+
+console.log(e); // "e"
 ```
 
 ---
@@ -148,13 +249,11 @@ console.log(evenNumbers); // [2, 4, 6]
 Composition lets us create a new function out of functions that already exist:
 
 ```javascript
-import { List } from "immutable";
 import { compose } from "ramda";
 
-let numbers = List([1, 2, 3, 4, 5, 6]);
-
-let odd = n => n % 2;
+let numbers = [1, 2, 3, 4, 5, 6];
 let not = n => !n;
+let odd = n => !!(n % 2);
 
 // Compose odd and not
 let even = compose(not, odd); 
@@ -163,22 +262,66 @@ let evenNumbers = numbers.filter(even);
 console.log(evenNumbers); // [2, 4, 6]
 ```
 
+What's happened here?
+
 - First `n` gets passed into `odd`, returning a truthy (`!0`) or falsey (`0`)
 - Then, the result of `odd(n)`, gets passed into `not`, which negates the value passed in
 
 Same as doing `let even = n => not(odd(n))`
 
+---
+
+## Composition
+
+[More complicated example]
 
 
 ---
 
-## Currying
+## Partial Application 
 
-Currying allows you to do "partial application" of a function
+Say we want a function that adds 2 to whatever we pass in:
+
+```javascript
+let add2 = n => n + 2;
+
+add2(2); // 4
+add2(8); // 10
+```
+
+What if we want one that adds 3?
+
+```javascript
+let add3 = n => n + 3;
+```
+
+Can we generalise the creation of adder functions?
+
+```javascript
+let makeAdder = function (add) {
+    return function (x) {
+        return x + add;
+    }
+}; // or, in ES6 let makeAdder = add => x => add + x;
+
+let add2 = makeAdder(2);
+let add5 = makeAdder(5);
+
+add2(3); // 5
+add5(5); // 10
+```
+
+---
+
+## Partial Application
+
+
 
 ---
 
 # Example
+
+Procedural to Functional in 11 Steps
 
 ---
 
@@ -209,15 +352,39 @@ Watch me typing!
 
 ---
 
-## Surely OO is better?
+# Criticisms
+
+---
+
+## JavaScript Isn't A Real Functional Language
+
+<iframe width="100%" height="75%" src="https://www.youtube.com/embed/eetWam3nhoM" frameborder="0" allowfullscreen></iframe>
+
+---
+
+## OO Is Best
 
 - By using ES6 modules you can still keep related functions in a single file 
+
+- Programming using `this` in JavaScript can be a nightmare (although much better with ES6)
+
 - Functional programming enforces OO best-practices:
     - Single Responsibility: FP encourages writing small functions that do a single thing 
     - Open/Closed: if a function does one thing well it shouldn't ever need to be changed
-    - Prefer Composition over Inheritance: compose all the things
+    - Prefer Composition Over Inheritance: compose all the things
     - Dependency Injection: the only way to do non-side effect based programming
-- Programming using `this` in JavaScript can be a nightmare
+
+---
+
+## Functional Programming is less Performant
+
+This one is true, but it's unlikely to have a noticeable effect in anything except the most processor intensive applications (e.g. games).
+
+JS engines are constantly improving the performance of functional code - and it will only get better.
+
+You can build very complex apps using a functional style without any noticeable performance issues.
+
+Because the code is highly modular, you can always tweak individual functions to get easy performance improvements.
 
 ---
 
@@ -232,6 +399,12 @@ Watch me typing!
 #### Advanced
 
 - [Professor Frisby's Mostly Adequate Guide to Functional Programming](https://github.com/MostlyAdequate/mostly-adequate-guide) by Brian Lonsdorf
+
+#### Other Functional Languages
+
+- [Learn You A Haskell for Great Good](http://learnyouahaskell.com) by Miran Lipovača
+- [The Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sicp/) by Hal Abelson, Jerry Sussman, and Julie Sussman
+- [The Little Schemer](https://mitpress.mit.edu/books/little-schemer) by Daniel P. Friedman and Matthias Felleisen
 
 ---
 
