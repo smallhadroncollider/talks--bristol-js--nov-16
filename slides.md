@@ -24,18 +24,21 @@ Functional Programming with JavaScript
 
 ## First Class Functions
 
-In JavaScript functions can be treated just like any other variable: you can pass them around and create them on the fly.
+In JavaScript functions can be treated just like any other variable: you can pass them to functions and return them from functions. 
 
 ```javascript
-var pointless = function () {
-    console.log("Pointless!");
-};
+var makeLogger = function (message) {
+    return function () {
+        console.log(message);
+    };
+}
 
 var run = function (fn) {
     return fn(); 
 };
 
-run(pointless);
+var hello = makeLogger("hello");
+run(hello); // "hello"
 ```
 
 ---
@@ -271,13 +274,6 @@ Same as doing `let even = n => not(odd(n))`
 
 ---
 
-## Composition
-
-[More complicated example]
-
-
----
-
 ## Partial Application 
 
 Say we want a function that adds 2 to whatever we pass in:
@@ -315,7 +311,62 @@ add5(5); // 10
 
 ## Partial Application
 
+But what if I actually just want to add two numbers together:
 
+```javascript
+// add 2 + 3
+let add2 = makeAdder(2);
+let result = add2(3);
+```
+
+Can we get the best of both worlds?
+
+```javascript
+import { curry } from "ramda";
+
+let add = curry((a, b) => a + b);
+
+let result = add(2, 3);
+let add2 = add(2);
+```
+
+---
+
+## Partial Application
+
+This can be very useful when used with `filter, `map`, and `reduce`:
+
+```javascript
+// ramda provides a curried version of filter, map, and reduce
+import { add, filter, map, reduce } from "ramda";
+
+let odd = n => !!(n % 2);
+
+let filterOdd = filter(odd);
+
+filterOdd([1, 2, 3, 4, 5, 6]); // [1, 3, 5]
+filterOdd([101, 102, 103, 104, 105, 106]); // [101, 103, 105]
+
+// Both map and add are curried
+let plus2 = map(add(2));
+
+plus2([1, 2, 3, 4, 5]); // [3, 4, 5, 6, 7]
+plus2([2, 5, 8]); // [4, 7, 10]
+
+// curried reduce takes the function first and the start value second
+let sum = reduce(add, 0);
+
+sum([1, 2, 3, 4, 5]); // 15
+sum([1, 3, 5, 7, 9]); // 25
+```
+
+
+[Hey Underscore, You're Doing it Wrong](https://www.youtube.com/watch?v=m3svKOdZijA)
+
+
+---
+
+## Memoization
 
 ---
 
