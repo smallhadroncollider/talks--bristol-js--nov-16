@@ -457,7 +457,7 @@ let makeAdder = function (add) {
     return function (x) {
         return x + add;
     }
-}; // or, in ES6 let makeAdder = add => x => add + x;
+}; // or, in ES6 `let makeAdder = add => x => add + x;`
 
 let add2 = makeAdder(2);
 let add5 = makeAdder(5);
@@ -490,7 +490,7 @@ let add2 = add(2);
 let five = add2(3); // 5
 ```
 
-`curry` lets us call a function in stages. If all the arguments have been given the function will execute, otherwise it will return a new curried function ready to take the rest of the arguments.
+`curry` lets us call a function in parts. If all the arguments have been given the function will execute, otherwise it will return a new curried function ready to take the rest of the arguments.
 
 ---
 
@@ -510,6 +510,10 @@ let filterOdd = filter(odd);
 filterOdd([1, 2, 3, 4, 5, 6]); // [1, 3, 5]
 filterOdd([101, 102, 103, 104, 105, 106]); // [101, 103, 105]
 ```
+
+---
+
+## Partial Application
 
 ```javascript
 import { add, map } from "ramda";
@@ -534,7 +538,27 @@ sum([1, 2, 3, 4, 5]); // 15
 sum([1, 3, 5, 7, 9]); // 25
 ```
 
+---
+
+## Ordering 
+
 The order of arguments for curried functions is very important.
+
+If you want curried functions to be composable, generally you'll want to pass functions in first and the data last.
+
+```javascript
+import { curry } from "ramda";
+
+// not very useful
+let map = curry(function(array, fn) {
+    return array.map(fn);
+});
+
+// very useful
+let map = curry(function(fn, array) {
+    return array.map(fn);
+});
+```
 
 [Hey Underscore, You're Doing it Wrong](https://www.youtube.com/watch?v=m3svKOdZijA)
 
@@ -621,6 +645,8 @@ Watch me typing!
 
 - Functions are very easy to test: inject everything and no side-effects
 
+- You can use a functional style within OO code and get the best of both worlds
+
 ---
 
 ## Functional Programming Is Less Performant
@@ -629,9 +655,9 @@ In JavaScript this one is true...
 
 - But it's unlikely to have a noticeable effect in anything except the most processor intensive applications (e.g. games).
 
-- JS engines are constantly improving the performance of functional code - and it will only get better.
+- You *can* build very complex apps using a functional style without any noticeable performance issues.
 
-- You can build very complex apps using a functional style without any noticeable performance issues.
+- JS engines are constantly improving the performance of functional code - and it will only get better.
 
 - Because the code is highly modular, you can always tweak individual functions to get easy performance improvements.
 
@@ -651,6 +677,7 @@ In JavaScript this one is true...
 
 #### Other Functional Languages
 
+- [PureScript by Example](https://leanpub.com/purescript/read) by Phil Freeman
 - [Learn You A Haskell for Great Good](http://learnyouahaskell.com) by Miran Lipovača
 - [The Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sicp/) by Hal Abelson, Jerry Sussman, and Julie Sussman
 - [The Little Schemer](https://mitpress.mit.edu/books/little-schemer) by Daniel P. Friedman and Matthias Felleisen
