@@ -482,7 +482,7 @@ sumOfPlus2([1, 2, 3, 4, 5]); // 25
 
 # Example
 
-Procedural to Functional in 11 Steps
+Procedural to Functional in 10 Steps
 
 ---
 
